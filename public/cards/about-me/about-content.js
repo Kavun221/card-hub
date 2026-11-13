@@ -19,7 +19,7 @@ window.ABOUT_ME = {
   intro: 'Write a few sentences about yourself here: what you do, what you are learning and why you built this site.',
 
   sections: [
-    { heading: 'What I work with', items: [ "Game creation" 'Add your own…'] },
+    { heading: 'What I work with', items: [ "Game creation", 'Add your own…'] },
     { heading: 'Currently learning', items: ['Building cards for this hub'] },
     { heading: 'Goals', items: ['Put this site on GitHub', 'Host it on my own domain'] }
   ],
