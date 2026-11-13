@@ -19,8 +19,8 @@ window.ABOUT_ME = {
   intro: 'Write a few sentences about yourself here: what you do, what you are learning and why you built this site.',
 
   sections: [
-    { heading: 'What I work with', items: ['ServiceNow (CMDB / CSDM)', 'Web pages: HTML, CSS, JavaScript', 'Add your own…'] },
-    { heading: 'Currently learning', items: ['CIS-DF certification', 'Building cards for this hub'] },
+    { heading: 'What I work with', items: [ "Game creation" 'Add your own…'] },
+    { heading: 'Currently learning', items: ['Building cards for this hub'] },
     { heading: 'Goals', items: ['Put this site on GitHub', 'Host it on my own domain'] }
   ],
 
