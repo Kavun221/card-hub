@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<!--
+  Tech Table card – a spreadsheet-style list of every card.
+  The rows come from assets/cards-registry.js; the logic is in tech-table.js.
+-->
+<html lang="en" data-root="../../">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>Tech Table</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../assets/common.css">
+  <link rel="stylesheet" href="tech-table.css">
+</head>
+<body>
+  <main class="sheet-wrap">
+    <div class="ribbon">
+      <div class="doc-title">📊 Tech Table <span class="muted">– all cards</span></div>
+      <div class="tools">
+        <input id="search" type="search" placeholder="Search…" aria-label="Search the table">
+        <button id="csv" type="button">⬇ Export CSV</button>
+      </div>
+    </div>
+    <div class="formula"><span class="fx-cell" id="fxCell">A1</span><span class="fx">fx</span><span class="fx-value" id="fxValue"></span></div>
+    <div class="sheet-scroll"><table id="sheet" class="sheet"></table></div>
+    <div class="statusbar" id="status"></div>
+  </main>
+
+  <dialog id="info" class="info">
+    <div class="info-body">
+      <div class="info-head"><span id="iIcon" class="info-icon"></span><div><div id="iName" class="info-name"></div><div id="iMeta" class="info-meta"></div></div></div>
+      <p id="iDesc"></p>
+      <div id="iHowWrap"><h3>How to use</h3><ul id="iHow"></ul></div>
+      <div id="iFilesWrap"><h3>Files</h3><ul id="iFiles" class="files"></ul></div>
+      <div class="info-actions"><a id="iOpen" class="btn primary">Open card ▶</a><button class="btn" id="iClose" type="button">Close</button></div>
+    </div>
+  </dialog>
+
+  <script src="../../assets/site-config.js"></script>
+  <script src="../../assets/cards-registry.js"></script>
+  <script src="../../assets/common.js"></script>
+  <script src="tech-table.js"></script>
+</body>
+</html>

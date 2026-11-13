@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<!--
+  index.html – the main page.
+  It has two "screens" in one page:
+    #welcome  – "Welcome Mr. Buell" (click or Enter to continue)
+    #select   – the card-select screen (like choosing a character in a game)
+  All behaviour is in assets/main.js. The cards come from assets/cards-registry.js.
+  data-root="" tells the shared scripts that this page sits in the top folder.
+-->
+<html lang="en" data-root="">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Security: only scripts from this site may run (no inline scripts, nothing from other domains) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>Card Hub</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/common.css">
+  <link rel="stylesheet" href="assets/main.css">
+</head>
+<body class="dark">
+
+  <!-- Screen 1: welcome -->
+  <section id="welcome" class="welcome" tabindex="0" aria-label="Welcome screen. Click or press Enter to continue.">
+    <canvas id="stars" class="stars" aria-hidden="true"></canvas>
+    <div class="welcome-inner">
+      <p class="eyebrow">Player detected</p>
+      <h1 class="welcome-title"><span class="w-hi">Welcome</span> <span id="welcomeName" class="w-name"></span></h1>
+      <p class="press"><span class="blink">▶</span> Click anywhere or press <kbd>Enter</kbd></p>
+    </div>
+  </section>
+
+  <!-- Screen 2: choose a card -->
+  <main id="select" class="select" hidden>
+    <header class="select-head">
+      <p class="eyebrow">Select your card</p>
+      <h2 id="siteName" class="select-title">Card Hub</h2>
+      <p class="hint">Use the mouse, or the arrow keys and <kbd>Enter</kbd></p>
+    </header>
+    <div id="cardGrid" class="card-grid" role="list"></div>
+    <section id="detail" class="detail" aria-live="polite">
+      <div class="detail-icon" id="dIcon"></div>
+      <div class="detail-text">
+        <div class="detail-name" id="dName"></div>
+        <div class="detail-desc" id="dDesc"></div>
+      </div>
+      <button id="dGo" class="play-btn" type="button">Play ▶</button>
+    </section>
+  </main>
+
+  <!-- Visitor counter (bottom of the main page) -->
+  <footer id="counterBar" class="counter-bar" hidden>
+    <span class="counter-label">Visitors</span>
+    <span id="visitorCount" class="odometer"></span>
+    <span id="counterMode" class="counter-mode"></span>
+  </footer>
+
+  <!-- Scripts: settings and card list first, then helpers, then this page's logic -->
+  <script src="assets/site-config.js"></script>
+  <script src="assets/cards-registry.js"></script>
+  <script src="assets/common.js"></script>
+  <script src="assets/visitor-counter.js"></script>
+  <script src="assets/main.js"></script>
+</body>
+</html>

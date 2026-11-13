@@ -1,0 +1,42 @@
+/*
+ * common.css – styles shared by every page: colours, fonts, the top bar on
+ * card pages ("◀ All cards") and the toast message.
+ * Change the colours here to re-theme the whole site.
+ */
+:root {
+  --hub-bg: #080a18;
+  --hub-bg2: #11142b;
+  --hub-panel: #161a36;
+  --hub-line: #2a2f55;
+  --hub-ink: #eef0ff;
+  --hub-muted: #9aa0c8;
+  --hub-accent: #7c7ff7;
+  --hub-gold: #ffd166;
+  --hub-font: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --hub-display: "Segoe UI Black", "Arial Black", "Segoe UI", system-ui, sans-serif;
+  --hub-mono: ui-monospace, "Cascadia Mono", Consolas, "Courier New", monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { font: 15px/1.5 var(--hub-font); }
+body.dark { background: var(--hub-bg); color: var(--hub-ink); }
+[hidden] { display: none !important; }
+kbd { font: 600 12px var(--hub-mono); border: 1px solid currentColor; border-bottom-width: 2px; border-radius: 5px; padding: 0 5px; opacity: .9; }
+:focus-visible { outline: 3px solid var(--hub-gold); outline-offset: 3px; }
+
+/* Top bar on card pages */
+.hub-bar { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; gap: 14px; padding: 8px 16px;
+  background: rgba(8, 10, 24, .92); backdrop-filter: blur(6px); color: var(--hub-ink); border-bottom: 1px solid var(--hub-line); font-size: 14px; }
+.hub-back { color: var(--hub-gold); text-decoration: none; font-weight: 700; letter-spacing: .02em; }
+.hub-back:hover { text-decoration: underline; }
+.hub-bar-title { font-weight: 700; color: var(--hub-muted); }
+
+/* Toast */
+.hub-toast { position: fixed; left: 50%; bottom: 64px; transform: translate(-50%, 10px); background: #23263a; color: #fff;
+  padding: 9px 16px; border-radius: 10px; font-size: 14px; opacity: 0; transition: opacity .2s, transform .2s; pointer-events: none; z-index: 100;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, .35); }
+.hub-toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

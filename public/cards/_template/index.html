@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<!--
+  TEMPLATE for a new card. To make a card:
+    1. Copy this folder to  public/cards/<your-card-id>/
+    2. Rename card.js / card.css if you like (and update the two lines below)
+    3. Set the id in card.js:  HUB.cardShell('<your-card-id>')
+    4. Add an entry to public/assets/cards-registry.js with
+         id: '<your-card-id>', status: 'ready', path: 'cards/<your-card-id>/index.html'
+  The card then shows up on the main page AND in the Tech Table.
+-->
+<html lang="en" data-root="../../">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>New card</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../assets/common.css">
+  <link rel="stylesheet" href="card.css">
+</head>
+<body class="dark">
+  <main id="app" class="app"></main>
+
+  <!-- shared scripts first, then this card's own script -->
+  <script src="../../assets/site-config.js"></script>
+  <script src="../../assets/cards-registry.js"></script>
+  <script src="../../assets/common.js"></script>
+  <script src="card.js"></script>
+</body>
+</html>

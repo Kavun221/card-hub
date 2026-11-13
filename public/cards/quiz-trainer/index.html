@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<!--
+  Quiz Trainer card – page skeleton.
+  Everything inside #view is drawn by the scripts at the bottom:
+    qt-storage.js  saving data in the browser
+    qt-charts.js   progress chart + trend
+    qt-import.js   importing quiz files / backups
+    qt-library.js  home screen and quiz settings/results screen
+    qt-play.js     taking a quiz and the score screen
+    qt-app.js      start-up and choosing the screen (load last)
+  data-root="../../" = path back to /public (used by the shared scripts).
+-->
+<html lang="en" data-root="../../">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>Quiz Trainer</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../assets/common.css">
+  <link rel="stylesheet" href="quiz-trainer.css">
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="logo">Q</div><h1 id="hTitle">Quiz Trainer</h1><div class="sp"></div>
+      <button class="btn ghost" id="homeBtn" type="button" hidden>← All quizzes</button>
+    </div>
+    <div id="view"></div>
+  </div>
+  <input type="file" id="file" accept=".json,application/json" multiple hidden>
+
+  <script src="../../assets/site-config.js"></script>
+  <script src="../../assets/cards-registry.js"></script>
+  <script src="../../assets/common.js"></script>
+  <script src="qt-storage.js"></script>
+  <script src="qt-charts.js"></script>
+  <script src="qt-import.js"></script>
+  <script src="qt-library.js"></script>
+  <script src="qt-play.js"></script>
+  <script src="qt-app.js"></script>
+</body>
+</html>
