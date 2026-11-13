@@ -1,9 +1,13 @@
-# Runtime data written by the server (visitor count) – never commit
+# Runtime data written by the server – never commit:
+#   data/visits.json  visitor count
+#   data/auth.json    the HASH of your private-card password (made by server/set-password.js)
 data/
+auth.json
 
-# Quiz files and backups: may contain content copied from third-party sites, keep them private
-*.quiz.json
-quiz-trainer-backup*.json
+# Quiz files and backups: contain content copied from third-party sites, keep them private.
+# ALL .json files are ignored (exported quizzes are .json) – except package.json.
+*.json
+!package.json
 quizzes/
 
 # Secrets / local settings, if you ever add any

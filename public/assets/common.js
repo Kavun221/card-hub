@@ -75,6 +75,15 @@ window.HUB = window.HUB || {};
   /** HUB.card(id) – the registry entry of a card (from cards-registry.js). */
   HUB.card = id => (window.HUB_CARDS || []).find(c => c.id === id);
 
+  /**
+   * HUB.isStaticHost() – true on GitHub Pages / Netlify / Cloudflare Pages and when the site is
+   * opened as a file: there is no server there, so no password check and no shared counter.
+   */
+  HUB.isStaticHost = () => location.protocol === 'file:' || /(\.github\.io|\.netlify\.app|\.pages\.dev)$/i.test(location.hostname);
+
+  /** HUB.isLocked(card) – locked = "coming soon", or a private card on a host without the server. */
+  HUB.isLocked = card => card.status !== 'ready' || !card.path || (card.private && HUB.isStaticHost() && location.protocol !== 'file:');
+
   /** HUB.cardUrl(card) – link to a card's page from the current page. */
   HUB.cardUrl = card => HUB.root() + card.path;
 

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<!--
+  Converter card (private: the server asks for your password before this page loads).
+  Everything is converted in the browser – files never leave this computer.
+
+  Scripts (load order matters):
+    vendor/*.js     third-party libraries, checked with Subresource Integrity (integrity="sha384-…"):
+                    if a library file is changed, the browser refuses to run it
+    cv-core.js      the frame: tool list, file picker, downloads, limits
+    cv-layout.js    writes PDF pages (used by Word → PDF and Text → PDF)
+    cv-images.js    image tools          cv-pdf.js    PDF + text tools
+    cv-word.js      Word tools           cv-data.js   Excel / CSV / JSON tools
+    cv-units.js     unit + colour converter
+    cv-app.js       starts everything (load last)
+  pdf.js (PDF → images/text) is loaded only when needed, by CV.loadPdfJs() in cv-core.js.
+-->
+<html lang="en" data-root="../../">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Converter</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../assets/common.css">
+  <link rel="stylesheet" href="converter.css">
+</head>
+<body class="dark">
+  <div class="cv">
+    <aside class="cv-side">
+      <div class="cv-brand">🔁 Converter</div>
+      <input id="toolSearch" type="search" placeholder="Find a tool… (e.g. webp)" aria-label="Find a tool">
+      <nav id="toolNav" aria-label="Tools"></nav>
+      <p class="privacy">🔒 Files are converted on this computer and never uploaded.</p>
+    </aside>
+    <main id="toolPanel" class="cv-panel" tabindex="-1"></main>
+  </div>
+
+  <script src="../../assets/site-config.js"></script>
+  <script src="../../assets/cards-registry.js"></script>
+  <script src="../../assets/common.js"></script>
+  <script src="vendor/jszip.min.js" integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG"></script>
+  <script src="vendor/pdf-lib.min.js" integrity="sha384-cRxpsEhPk/Iq2rPjIjN4OnXJNNzvKBtoFr6lEaeSdlbaMaSLaA9KCf+0tyjP4L41"></script>
+  <script src="vendor/marked.umd.js" integrity="sha384-R7dZLWt8GUW38Y03jlpDz0zOqeybP7pNZ3R+BU2uBERlBb96r6YKIV4qFRYo15iP"></script>
+  <script src="cv-core.js"></script>
+  <script src="cv-layout.js"></script>
+  <script src="cv-images.js"></script>
+  <script src="cv-pdf.js"></script>
+  <script src="cv-word.js"></script>
+  <script src="cv-data.js"></script>
+  <script src="cv-units.js"></script>
+  <script src="cv-app.js"></script>
+</body>
+</html>

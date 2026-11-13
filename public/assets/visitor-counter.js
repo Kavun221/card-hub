@@ -22,7 +22,8 @@ window.HUB = window.HUB || {};
   const LOCAL_KEY = 'visitsLocal';
 
   /** True when the page is served over http(s), i.e. a server could answer. */
-  const canUseServer = () => /^https?:$/.test(location.protocol) && !!cfg.counterApi;
+  // (GitHub Pages and other static hosts can't run server.js, so don't even ask there)
+  const canUseServer = () => /^https?:$/.test(location.protocol) && !!cfg.counterApi && !HUB.isStaticHost();
 
   /** Ask the server: GET reads the number, POST adds one. Returns the number, or null on failure. */
   async function askServer(method) {
@@ -84,7 +85,7 @@ window.HUB = window.HUB || {};
         box.append(s);
       });
       box.setAttribute('aria-label', `${count} visitors`);
-      if (note) note.textContent = mode === 'server' ? '' : '(this browser only – start the server to count everyone)';
+      if (note) note.textContent = mode === 'server' ? '' : '(counted in this browser only)';
     }
   };
 })(window.HUB);

@@ -12,6 +12,10 @@
  *    Only Node's built-in modules are used (http, fs, path). Nothing to install,
  *    and no third-party code that could be compromised.
  *
+ *    3. Protects "private" cards with a password (see auth.js). The password is
+ *       created on your PC with `node server/set-password.js` and only its hash is
+ *       kept in ../data/auth.json – never in the code, never on GitHub.
+ *
  *  Settings (environment variables – nothing secret is written in this file)
  *    PORT  port number, default 8080
  *    HOST  network address, default 127.0.0.1 = only THIS computer can open the site.
@@ -25,6 +29,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const auth = require('./auth');
 
 const PORT = Number(process.env.PORT) || 8080;
 const HOST = process.env.HOST || '127.0.0.1';
@@ -37,6 +42,7 @@ const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
+  '.mjs': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.svg': 'image/svg+xml',
   '.png': 'image/png',
@@ -142,13 +148,20 @@ function serveFile(req, res) {
   // Path-traversal protection: the final path must still be inside ROOT ("../../" tricks are refused)
   if (file !== ROOT && !file.startsWith(ROOT + path.sep)) return send(res, 404, 'Not found');
 
+  // Private cards: checked on the REAL file path, in lower case (Windows ignores letter case,
+  // so /CARDS/Converter/ must not slip past the check).
+  const real = ('/' + path.relative(ROOT, file).split(path.sep).join('/')).toLowerCase();
+  if (auth.isProtected(real + (real.endsWith('/') ? '' : '/')) && !auth.isLoggedIn(req)) {
+    return send(res, 302, '', undefined, { Location: '/auth/login?next=' + encodeURIComponent(rel), 'Cache-Control': 'no-store' });
+  }
+
   fs.stat(file, (err, st) => {
     if (!err && st.isDirectory()) { file = path.join(file, 'index.html'); }
     const type = MIME[path.extname(file).toLowerCase()];
     if (!type) return send(res, 404, 'Not found');
     fs.readFile(file, (err2, data) => {
       if (err2) return send(res, 404, 'Not found');
-      send(res, 200, req.method === 'HEAD' ? undefined : data, type, { 'Cache-Control': 'no-cache' });
+      send(res, 200, req.method === 'HEAD' ? undefined : data, type, { 'Cache-Control': auth.isProtected(real + '/') ? 'no-store' : 'no-cache' });
     });
   });
 }
@@ -156,6 +169,13 @@ function serveFile(req, res) {
 /* --------------------------------- server ---------------------------------- */
 
 const server = http.createServer((req, res) => {
+  // On HTTPS: tell browsers to always use HTTPS for this site from now on (HSTS)
+  if (auth.isHttps(req)) res.setHeader('Strict-Transport-Security', 'max-age=31536000');
+  let u;
+  try { u = new URL(req.url, 'http://x'); } catch { return send(res, 400, 'Bad request'); }
+  if (u.pathname.startsWith('/auth/')) {
+    return auth.handleAuth(req, res, send, u.pathname, u.searchParams).catch(() => send(res, 500, 'Error'));
+  }
   if (req.url === '/api/visits' || req.url.startsWith('/api/visits?')) return handleVisits(req, res);
   if (req.url.startsWith('/api/')) return send(res, 404, 'Not found');
   return serveFile(req, res);
@@ -163,5 +183,6 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, HOST, () => {
   console.log(`Card Hub is running:  http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${PORT}/`);
+  console.log(auth.loadAuth() ? 'Private cards: password is set.' : 'Private cards: NO password yet – run  node server/set-password.js');
   console.log('Press Ctrl+C to stop.');
 });
