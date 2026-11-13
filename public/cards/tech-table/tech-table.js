@@ -22,11 +22,12 @@
   const { $, el } = HUB;
   HUB.cardShell('tech-table');
 
-  const STATUS = { ready: 'Ready', soon: 'Coming soon' };
+  const STATUS = { ready: 'Ready', soon: 'Coming soon', private: 'Private 🔒', local: 'Private – PC only' };
+  const statusOf = c => (c.status !== 'ready' ? c.status : !c.private ? 'ready' : HUB.isLocked(c) ? 'local' : 'private');
   const COLUMNS = [
     { key: 'name', label: 'Card', cell: c => cardLink(c) },
     { key: 'category', label: 'Category' },
-    { key: 'status', label: 'Status', value: c => STATUS[c.status] || c.status, cell: c => el('span', 'pill ' + c.status, STATUS[c.status] || c.status) },
+    { key: 'status', label: 'Status', value: c => STATUS[statusOf(c)], cell: c => el('span', 'pill ' + statusOf(c), STATUS[statusOf(c)]) },
     { key: 'version', label: 'Version' },
     { key: 'added', label: 'Added' },
     { key: 'tagline', label: 'What it is' },
@@ -38,7 +39,7 @@
   let sortKey = null, sortDir = 1;
 
   function cardLink(c) {
-    if (c.status !== 'ready' || !c.path) return el('span', 'muted', `${c.icon || ''} ${c.name}`);
+    if (HUB.isLocked(c)) return el('span', 'muted', `${c.icon || ''} ${c.name}`);
     const a = el('a', 'card-link', `${c.icon || ''} ${c.name}`);
     a.href = HUB.cardUrl(c);
     return a;
@@ -119,7 +120,7 @@
   function showInfo(c) {
     $('#iIcon').textContent = c.icon || '★';
     $('#iName').textContent = c.name;
-    $('#iMeta').textContent = [c.category, STATUS[c.status], c.version !== '–' ? 'v' + c.version : '', c.added ? 'added ' + c.added : ''].filter(Boolean).join(' · ');
+    $('#iMeta').textContent = [c.category, STATUS[statusOf(c)], c.version !== '–' ? 'v' + c.version : '', c.added ? 'added ' + c.added : ''].filter(Boolean).join(' · ');
     $('#iDesc').textContent = c.status === 'ready' ? c.description : 'This card will come soon.';
     const how = $('#iHow'); how.textContent = '';
     (c.howTo || []).forEach(h => how.append(el('li', '', h)));
@@ -128,8 +129,8 @@
     (c.files || []).forEach(f => files.append(el('li', '', f)));
     $('#iFilesWrap').hidden = !(c.files || []).length;
     const open = $('#iOpen');
-    open.hidden = c.status !== 'ready';
-    if (c.status === 'ready') open.href = HUB.cardUrl(c);
+    open.hidden = HUB.isLocked(c);
+    if (!open.hidden) open.href = HUB.cardUrl(c);
     $('#info').showModal();
   }
 

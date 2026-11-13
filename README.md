@@ -13,6 +13,7 @@ Every feature is a **card**. The current cards:
 | **Quiz Trainer** | Practise quizzes exported from Quiz Collector: pick a question range, shuffle, track progress | `public/cards/quiz-trainer/` |
 | **Tech Table** | Spreadsheet of all cards with links and ⓘ info | `public/cards/tech-table/` |
 | **About Me** | Your profile page (edit `about-content.js`) | `public/cards/about-me/` |
+| **Converter** 🔒 | Private: Word → PDF, WEBP → JPG, PDF merge/split, Excel/CSV and more – all in the browser | `public/cards/converter/` |
 | Coming soon ×3 | Locked slots for future cards | – |
 
 More detail on every file and function: **[HOW-IT-WORKS.md](HOW-IT-WORKS.md)**. Security choices: **[SECURITY.md](SECURITY.md)**.
@@ -30,9 +31,29 @@ The visitor counter is then shared by everybody who visits.
 
 (Or in a terminal: `node server/server.js`. Other port: `set PORT=9000` first on Windows.)
 
+### Private cards (Converter): set your password once
+The Converter is protected by a password that **only exists on your PC**:
+
+1. In the `card-hub` folder: right-click → **Open in Terminal** →
+   ```
+   node server/set-password.js
+   ```
+   Type a password (at least 10 characters) twice. Only a *hash* of it is saved, in `data/auth.json`
+   – never the password itself, never in the code, never on GitHub (`data/` is git-ignored).
+2. Restart the server (close the window, double-click `start-windows.bat` again).
+3. Open the Converter card → type your password → it stays unlocked for 8 hours or until you press **🔒 Lock**.
+
+Change the password: run the same command again. Remove it: `node server/set-password.js --remove`.
+5 wrong passwords lock the login for 15 minutes.
+
+On **GitHub Pages** the Converter is shown as *“Private · only on my PC”* and its files are not
+published (GitHub Pages can't check passwords). The code is in the repository – that's fine, it
+contains no secrets.
+
 ### Option B – without a server
 Double-click `public/index.html`. Everything works, but the visitor counter only counts
-**this browser** (it says so under the number).
+**this browser** (it says so under the number). The Converter opens without a password in this
+mode (there is no server to ask), and its PDF-reading tools need the server.
 
 > Your quizzes and results are saved in the browser, per address. The server address
 > (`http://127.0.0.1:8080`) and the double-click address (`file://…`) are different "places",
@@ -49,7 +70,9 @@ card-hub/
 ├─ start-windows.bat / start-mac-linux.sh     start the server
 ├─ package.json                               lets you run "npm start" (no packages needed)
 ├─ server/server.js                           small web server + visitor-counter API
-├─ data/                                      created by the server (visits.json) – not in git
+├─ server/auth.js                             password login for private cards
+├─ server/set-password.js                     create/change your password (hash saved in data/)
+├─ data/                                      visits.json + auth.json – on your PC only, not in git
 └─ public/                                    EVERYTHING the browser loads (this is "the website")
    ├─ index.html                              welcome screen + card select
    ├─ assets/
@@ -63,7 +86,8 @@ card-hub/
       ├─ _template/                           copy this to start a new card
       ├─ quiz-trainer/                        one folder per card, with its own scripts
       ├─ tech-table/
-      └─ about-me/
+      ├─ about-me/
+      └─ converter/                           private card; vendor/ holds the libraries + licences
 ```
 
 ---
@@ -94,7 +118,11 @@ card-hub/
 5. Write the card's code in its own folder. When a card grows, split it into several files
    (like Quiz Trainer: `qt-storage.js`, `qt-play.js`, …) and list them in the card's `index.html`.
 
-Old cards stay as they are; refer to them by name (Quiz Trainer, Tech Table, About Me).
+Old cards stay as they are; refer to them by name (Quiz Trainer, Tech Table, About Me, Converter).
+
+**Make a card private:** add `private: true` to its registry entry, add its folder to
+`PROTECTED_PREFIXES` in `server/auth.js`, and add an `rm -rf public/cards/<id>` line to
+`.github/workflows/pages.yml` so it isn't published.
 
 ---
 

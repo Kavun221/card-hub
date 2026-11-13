@@ -1,10 +1,17 @@
+# ============================================================================
+#  Publishes the website to GitHub Pages every time you push to the main branch.
+#  Only the public/ folder is published – server/, docs and data/ are NOT put online.
+#  Private cards (they need the password on your own PC) are removed before publishing.
+#  (Settings → Pages → Source must be set to "GitHub Actions".)
+# ============================================================================
 name: Deploy Card Hub to GitHub Pages
 
 on:
   push:
     branches: ["main"]
-  workflow_dispatch:
+  workflow_dispatch:          # also lets you run it by hand from the Actions tab
 
+# Least privilege: read the code, write only to Pages
 permissions:
   contents: read
   pages: write
@@ -23,6 +30,9 @@ jobs:
     steps:
       - name: Get the code
         uses: actions/checkout@v4
+      - name: Leave private cards out of the public site
+        # add more folders here if you make more private cards
+        run: rm -rf public/cards/converter
       - name: Set up Pages
         uses: actions/configure-pages@v5
       - name: Upload the public folder

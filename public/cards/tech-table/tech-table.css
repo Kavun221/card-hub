@@ -46,3 +46,5 @@ body { background: #f3f4f7; color: #1f2335; }
 .info .files li { font-family: ui-monospace, Consolas, monospace; font-size: 12.5px; }
 .info-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; }
 .info-body { padding: 22px 24px; }
+.pill.private { background: #e0f4f6; color: #0b7b85; }
+.pill.local { background: #fdf1e2; color: #a35a00; }

@@ -72,7 +72,8 @@
     const grid = $('#cardGrid');
     grid.textContent = '';
     cards.forEach((card, i) => {
-      const c = el('button', 'game-card' + (card.status === 'ready' ? '' : ' locked'));
+      const locked = HUB.isLocked(card);
+      const c = el('button', 'game-card' + (locked ? ' locked' : '') + (card.private ? ' private' : ''));
       c.type = 'button';
       c.setAttribute('role', 'listitem');
       c.style.setProperty('--accent', card.accent || '#6d6ff5');
@@ -83,9 +84,9 @@
       body.append(
         el('div', 'card-name', card.name),
         el('div', 'card-tag', card.tagline || ''),
-        el('div', 'card-meta', card.status === 'ready' ? `${card.category} · v${card.version}` : 'Locked')
+        el('div', 'card-meta', card.status !== 'ready' ? 'Locked' : locked ? 'Private · only on my PC' : `${card.category} · v${card.version}`)
       );
-      const badge = el('div', 'card-badge', card.status === 'ready' ? 'READY' : 'SOON');
+      const badge = el('div', 'card-badge', card.status !== 'ready' ? 'SOON' : card.private ? '🔒 PRIVATE' : 'READY');
       c.append(badge, art, body);
       c.addEventListener('mouseenter', () => focusCard(i, false));
       c.addEventListener('focus', () => focusCard(i, false));
@@ -103,18 +104,20 @@
     const card = cards[current];
     $('#dIcon').textContent = card.icon || '★';
     $('#dName').textContent = card.name;
-    $('#dDesc').textContent = card.status === 'ready' ? card.description : 'This card will come soon.';
+    const locked = HUB.isLocked(card);
+    $('#dDesc').textContent = card.status !== 'ready' ? 'This card will come soon.'
+      : locked ? 'Private card – it only runs on my own PC, behind a password.' : card.description;
     const go = $('#dGo');
-    go.disabled = card.status !== 'ready';
-    go.textContent = card.status === 'ready' ? 'Play ▶' : 'Locked 🔒';
+    go.disabled = locked;
+    go.textContent = locked ? 'Locked 🔒' : card.private ? 'Unlock 🔑' : 'Play ▶';
     go.onclick = () => openCard(card, els[current]);
     $('#detail').style.setProperty('--accent', card.accent || '#6d6ff5');
   }
 
   function openCard(card, cardEl) {
-    if (card.status !== 'ready' || !card.path) {
+    if (HUB.isLocked(card)) {
       if (cardEl) { cardEl.classList.remove('shake'); void cardEl.offsetWidth; cardEl.classList.add('shake'); }
-      HUB.toast(`${card.name}: will come soon`);
+      HUB.toast(card.status === 'ready' ? `${card.name} is private – only on my own PC` : `${card.name}: will come soon`);
       return;
     }
     if (cardEl) cardEl.classList.add('chosen');

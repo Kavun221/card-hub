@@ -47,6 +47,7 @@
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 40%, transparent), 0 18px 40px -10px color-mix(in srgb, var(--accent) 70%, transparent); outline: none; }
 .game-card.active .card-icon { transform: scale(1.12) rotate(-4deg); animation: bob 1.6s ease-in-out infinite; }
 .game-card.locked { filter: saturate(.25); }
+.game-card.private .card-badge { border-color: var(--hub-gold); color: var(--hub-gold); }
 .game-card.locked .card-icon { opacity: .6; }
 .game-card.locked.active { filter: saturate(.5); }
 .game-card.shake { animation: shake .4s; }

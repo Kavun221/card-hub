@@ -41,7 +41,20 @@ A web server built only from Node's own modules.
 | `readVisits()` / `writeVisits()` | Read/save `data/visits.json`. Writing goes to a temp file first, then rename (no half-written file). |
 | `tooMany(ip)` | Flood protection: max 20 counted visits per IP per minute. |
 | `handleVisits()` | `GET /api/visits` → `{count}`. `POST /api/visits` (must have header `X-Requested-With: card-hub`) → count + 1. |
-| `serveFile()` | Serves files from `public/` only. Refuses hidden files (`.git`, `.env`) and `../` path tricks. A folder serves its `index.html`. |
+| `serveFile()` | Serves files from `public/` only. Refuses hidden files (`.git`, `.env`) and `../` path tricks. A folder serves its `index.html`. Private folders (see auth.js) redirect to the login unless you are logged in – checked on the real file path in lower case, so `/CARDS/Converter/` can't sneak past on Windows. |
+
+## server/auth.js and server/set-password.js (password for private cards)
+| Part | What it does |
+|---|---|
+| `set-password.js` | Asks for the password twice (hidden), makes a random 16-byte **salt**, hashes with **scrypt** and saves `{salt, hash, params}` in `data/auth.json` (file readable only by you). `--remove` deletes it. |
+| `PROTECTED_PREFIXES` | Which URL folders need the password (`/cards/converter/`). |
+| `hashPassword(pw, salt)` | scrypt (N=32768, r=8, p=1, 64 bytes) – deliberately slow, so guessing is slow. |
+| `isProtected(path)` / `isLoggedIn(req)` | Is this a private page? Does the request carry a valid session cookie? |
+| `handleAuth()` | `GET /auth/login` login page · `POST /auth/login` checks the password (constant-time compare) and sets the cookie · `POST /auth/logout` · `GET /auth/status`. |
+| Session | A random 256-bit token (64 hex characters) in your cookie. The server's memory keeps only its SHA-256 fingerprint (safe because the token is fully random), valid 8 h. Cookie is `HttpOnly`, `SameSite=Strict`, and `Secure` on https. Restarting the server logs everyone out. |
+| Brute-force guard | 5 wrong tries per IP → locked 15 minutes. |
+| HTTPS rule | `isLocal()` / `isHttps()`: the login page and form only work on the PC itself or over HTTPS; anywhere else they show “Login needs HTTPS”. |
+| Other protections | Logins from other websites are refused (Sec-Fetch-Site / Origin check); the “go back to” address after login must be one of our own pages (no open redirect). |
 
 ## public/index.html + assets/main.js (main page)
 | Function | What it does |
@@ -112,6 +125,30 @@ Saved attempt fields: `at, right, wrong, skipped, unscored, pct, secs, from, to,
 | `selectCell(td)` | Shows the cell address and value in the formula bar. |
 | `showInfo(card)` | The ⓘ dialog: description, how to use, files, "Open card". |
 | `exportCsv()` | Downloads `tech-table.csv` (cells are quoted; text starting with `= + - @` is neutralised so Excel can't run it as a formula). |
+
+## Card: Converter (`public/cards/converter/`) – private
+Everything runs in the browser. Files are read with the File API and never uploaded; the page's
+security policy (`connect-src 'self'`) also blocks sending anything to another server.
+
+| File | What it holds |
+|---|---|
+| `cv-core.js` | The frame. `CV.addTool({...})` registers a tool. Helpers: `CV.dropZone()` file picker with drag & drop and ▲▼ ordering · `CV.checkFiles()` type/size limits (200 MB per file, 600 MB total) · `CV.readZip()` opens .docx/.xlsx and refuses “zip bombs” (> 400 MB unpacked) · `CV.xml()` safe XML parsing · `CV.download()` · `CV.zip()` many files → one .zip · `CV.results()` result list with “Download all” · `CV.loadImage()` / `CV.imageTo()` picture → canvas → new format · `CV.loadPdfJs()` loads pdf.js only when needed · `CV.openPdf()` with scripts in PDFs switched off · `CV.closePdf()`. Screen: `buildNav()` tool list + search, `openTool(id)` (the URL `#tool-id` keeps your place). |
+| `cv-layout.js` | `CV.blocksToPdf(blocks)` writes PDF pages with pdf-lib: headings, paragraphs with bold/italic/underline/colour/size, bullet & number lists, tables (header row, wrapping), pictures, code, page breaks, page numbers. `pdfText()` swaps characters the standard PDF fonts can't show (æøå work; → becomes ->, emoji become ?). |
+| `cv-images.js` | **Image converter** (WEBP/PNG/JPG/GIF/BMP/AVIF/SVG/ICO → JPG/PNG/WEBP, quality, max size, background colour) · **Images → PDF** (page = picture, A4 or Letter, orientation, margin). |
+| `cv-pdf.js` | **Merge** · **Split / extract** (`CV.parseRanges("1-3, 5, 8-")`) · **Rotate** · **PDF → images** (96/150/300 dpi) · **PDF → text** · **Text/Markdown → PDF** · **Markdown → HTML**. `mdBlocks()` turns Markdown into layout blocks; raw HTML in Markdown is shown as text, never run. |
+| `cv-word.js` | `CV.readDocx(file)` reads `word/document.xml`, styles, numbering, links and pictures into blocks (`paragraph()`, `runsOf()`, `table()`); `CV.blocksToHtml()` self-contained HTML (text escaped, pictures embedded, strict CSP inside the file); `CV.blocksToText()`. Tool: **Word → PDF / HTML / Text**. |
+| `cv-data.js` | `CV.parseCsv()` (quotes, line breaks in cells, auto separator) · `CV.toCsv()` (optional protection against Excel formula injection) · `CV.readXlsx()` (shared strings, booleans, dates) · `CV.writeXlsx()` (valid .xlsx built with JSZip). Tools: **Excel → CSV**, **CSV → Excel**, **CSV ⇄ JSON**. |
+| `cv-units.js` | **Unit converter** (`UNITS` table: add `[name, factor]` to add a unit) and **Colour converter** (HEX/RGB/HSL). |
+| `cv-app.js` | Checks the libraries loaded, then `CV.start()`. |
+| `vendor/` | jszip 3.10.1, pdf-lib 1.17.1, marked 18.0.10, pdf.js 6.2.108 – copied from npm, with licences and SHA-256 checksums in `vendor/VERSIONS.md`. The classic scripts have `integrity="sha384-…"` in `index.html`: a changed file is refused by the browser. |
+
+**Add a converter tool:** pick the right `cv-*.js` (or make a new one and add it to `index.html`
+before `cv-app.js`) and call `CV.addTool({ id, group, icon, name, desc, render(panel) { … } })`.
+In `render`, use `CV.dropZone`, `CV.options`, `CV.button`, `CV.status` and `CV.results` – copy
+the pattern of an existing tool.
+
+**Limits** – Word → PDF uses standard fonts (a clean copy of the content, not pixel-perfect);
+old `.doc`, `.pptx`, HEIC photos and scanned-PDF text recognition (OCR) are not supported.
 
 ## Card: About Me (`public/cards/about-me/`)
 * `about-content.js` – **your texts** (`name, title, intro, sections, timeline, links`). Edit this.
